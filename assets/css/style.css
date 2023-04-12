@@ -1,0 +1,11 @@
+:root{
+    --theme : rgb(136, 196, 226);
+}
+
+body{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+header{
+    background-color: var(--theme);
+    height: 10vh;
+}

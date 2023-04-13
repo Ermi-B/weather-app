@@ -9,3 +9,6 @@ header{
     background-color: var(--theme);
     height: 10vh;
 }
+button{
+    box-shadow: 2px 3px 7px gray;
+}

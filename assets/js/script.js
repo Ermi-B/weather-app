@@ -10,11 +10,14 @@ var windDisplay = $('#wind-display');
 var humidityDisplay = $('#humidity-display');
 var futureForecastDisplay = $('#future-forecast');
 
+
 var fiveDaysArray = []; //stores the next five days from current date(just the dates at time 00:00:00)
-var futureForecasts = [];
+var futureForecasts = []; //stores the actual weather information of the next five days
 
 //a function that generates a weather data of a city
+
 function getWeatherData(city){
+
     //API call to retrieve longitude and latitude of a city
 
 var coordinatesUrl = 'https://api.openweathermap.org/geo/1.0/direct?q='+city+'&limit=5&appid='+APIkey
@@ -22,34 +25,33 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
 .then(function(res){
     return res.json()
 }).then(function(result){
-    console.log('longitude',result[0].lon)
-    console.log('lattitude',result[0].lat)
-    var latitude = result[0].lat;
-    var longitude = result[0].lon;
+
+    var latitude = result[0].lat;   //grabs the first results lattitude
+    var longitude = result[0].lon;  //grabs the second of results longitude
     
- //API calling  which uses longitude and lattitude to fetch data
+ //API calling  which uses the longitude and lattitude to fetch data
  
     var queryUrl = 'https://api.openweathermap.org/data/2.5/forecast?lat='+latitude+'&lon='+longitude+'&appid='+APIkey+'&units=imperial';
     fetch(queryUrl) //fetch using coordinates
     .then(function(response){
         return response.json();
-    }).then(function(data){
+    }).then(function(data){        
         
-        console.log(data.city.name)
-        cityDisplay.text(data.city.name);
-        dateDisplay.text(dayjs().format('MM/DD/YYYY'))
-        var tempFar = data.list[0].main.temp //gets temprature in Franehit
-        tempDisplay.text("Temp: " + tempFar.toFixed(2) + ' \u00B0F') //displying two decimal place with degree symbol represented by \u00B0 Unicode 
+        cityDisplay.text(data.city.name); //writes the city name on the page
+        dateDisplay.text(dayjs().format('MM/DD/YYYY')) //date
 
-        var windSpeedMph = data.list[0].wind.speed // gets windspeed in mph
+        var tempFar = data.list[0].main.temp //gets temprature in Franehit
+        tempDisplay.text("Temp: " + tempFar.toFixed(2) + ' \u00B0F') //temprature in two decimal place with a degree symbol represented by \u00B0 Unicode 
+
+        var windSpeedMph = data.list[0].wind.speed //  windspeed in mph
         windDisplay.text("Wind: "+ windSpeedMph.toFixed(2) +' mph')
 
-        humidityDisplay.text("Humidity:  " + data.list[0].main.humidity + "%")
+        humidityDisplay.text("Humidity:  " + data.list[0].main.humidity + "%") //humidity
         
         var weatherHourly = data.list; //array of objects for every 3 hours of 5 days weather forecast(length of array = 40)
-        var dateOfWeather = weatherHourly[39].dt_txt
+        
 
-        console.log(dayjs(dateOfWeather).format('DD/MM/YYYY'))
+        
 
         //generating the next five days from current date
         for (let i = 1; i <= 5; i++) {
@@ -73,67 +75,44 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
                 }//end of inner for loop                          
           
         }//end of outer for loop
-        console.log(futureForecasts)
-
-
-        //future forecast display in cards usiong bootstrap classes
-
-
+        
+        //future forecast display in cards using bootstrap classes
         for(var i=0; i<futureForecasts.length;i++){
             var dateDay = dayjs(futureForecasts[i].dt_txt)
-
-             var futureForecastContainer = $('<div>',{class:"col-sm-12 col-md-4 col-lg-3"});
-    var futureForecastCard = $('<div>',{class: 'card bg-secondary text-white m-4'});
-    var futureForecastCardHeader = $('<div>',{class:'card-header text-center'}); 
-        futureForecastCardHeader.html(`<h5 class="card-title">${dateDay.format('ddd')}</h5><h6>${dayjs(dateDay).format('DD/MM/YYYY')}</h6>`);
-    var futureForecastCardBody = $('<div>',{class:'card-body text-center'}); 
-    futureForecastCardBody.html(`<p class="card-text"> 
-                                    <h5>Temp : ${futureForecasts[i].main.temp}\u00B0F</h5>
-                                    <h5>Humidity : ${futureForecasts[i].main.humidity} %</h5>
-                                    <h5>Wind : ${futureForecasts[i].wind.speed} mph</h5>
-                                </p>`);
-    
-    futureForecastCard.append(futureForecastCardHeader)
-    futureForecastCard.append(futureForecastCardBody)
-    futureForecastContainer.append(futureForecastCard)
-
-
-
-
-        futureForecastDisplay.append(futureForecastContainer);
+            //creating container and cards to display the next 5 days forecast
+            var futureForecastContainer = $('<div>',{class:"col-sm-12 col-md-4 col-lg-3"});            
+            var futureForecastCard = $('<div>',{class: 'card bg-secondary text-white m-4'});
+            var futureForecastCardHeader = $('<div>',{class:'card-header text-center'}); 
+            futureForecastCardHeader.html(`<h5 class="card-title">${dateDay.format('ddd')}</h5><h6>${dayjs(dateDay).format('DD/MM/YYYY')}</h6>`);
+            var futureForecastCardBody = $('<div>',{class:'card-body text-center'}); 
+            futureForecastCardBody.html(`<p class="card-text"> 
+                                            <h5>Temp : ${futureForecasts[i].main.temp}\u00B0F</h5>
+                                            <h5>Humidity : ${futureForecasts[i].main.humidity} %</h5>
+                                            <h5>Wind : ${futureForecasts[i].wind.speed} mph</h5>
+                                        </p>`);
+            //appending
+            futureForecastCard.append(futureForecastCardHeader)
+            futureForecastCard.append(futureForecastCardBody)
+            futureForecastContainer.append(futureForecastCard)
+            futureForecastDisplay.append(futureForecastContainer);        
         }
+  
+    })//end of second api calling
    
+})//end of first api calling
 
-
-
-    })//end of api calling
-   
-})
-
-}
+} //end of function
 
 
 //event listener
 searchBtn.on('click',function(){
-    var cityName = $('#input-city').val();
 
+    futureForecastDisplay.empty(); //clearing contents from the cards display space
+    fiveDaysArray = []; //resetting arrays
+    futureForecasts = [];
+
+    var cityName = $('#input-city').val(); //grabs the city name from user input    
     getWeatherData(cityName);
     
 })
 
-/**
- *  <div class="row m-4 p-4">
-                <div class="col-sm-12 col-md-3 col-lg-3">
-                  <div class="card bg-secondary text-white">
-                    <div class="card-header text-center">
-                        <h5 class="card-title">Monday</h5>
-                    </div>
-                    <div class="card-body">
-                      
-                      <p class="card-text"><h5></h5></p>
-                      
-                    </div>
-                  </div>
-                </div>
-    </div>
- */

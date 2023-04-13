@@ -8,6 +8,8 @@ var dateDisplay = $('#date-display');
 var tempDisplay = $('#temp-display');
 var windDisplay = $('#wind-display');
 var humidityDisplay = $('#humidity-display');
+var futureForecastDisplay = $('#future-forecast');
+
 var fiveDaysArray = []; //stores the next five days from current date(just the dates at time 00:00:00)
 var futureForecasts = [];
 
@@ -40,9 +42,9 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
         tempDisplay.text("Temp: " + tempFar.toFixed(2) + ' \u00B0F') //displying two decimal place with degree symbol represented by \u00B0 Unicode 
 
         var windSpeedMph = data.list[0].wind.speed // gets windspeed in mph
-        windDisplay.text("Wind: "+ windSpeedMph.toFixed(2))
+        windDisplay.text("Wind: "+ windSpeedMph.toFixed(2) +' mph')
 
-        humidityDisplay.text("Humidity:  " + data.list[0].main.humidity)
+        humidityDisplay.text("Humidity:  " + data.list[0].main.humidity + "%")
         
         var weatherHourly = data.list; //array of objects for every 3 hours of 5 days weather forecast(length of array = 40)
         var dateOfWeather = weatherHourly[39].dt_txt
@@ -73,7 +75,38 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
         }//end of outer for loop
         console.log(futureForecasts)
 
-    })
+
+        //future forecast display in cards usiong bootstrap classes
+
+
+        for(var i=0; i<futureForecasts.length;i++){
+            var dateDay = dayjs(futureForecasts[i].dt_txt).format('ddd')
+
+             var futureForecastContainer = $('<div>',{class:"col-sm-12 col-md-4 col-lg-3"});
+    var futureForecastCard = $('<div>',{class: 'card bg-secondary text-white m-4'});
+    var futureForecastCardHeader = $('<div>',{class:'card-header text-center'}); 
+        futureForecastCardHeader.html(`<h5 class="card-title">${dateDay}</h5>`);
+    var futureForecastCardBody = $('<div>',{class:'card-body text-center'}); 
+    futureForecastCardBody.html(`<p class="card-text"> 
+                                    <h5>Temp : ${futureForecasts[i].main.temp}\u00B0F</h5>
+                                    <h5>Humidity : ${futureForecasts[i].main.humidity} %</h5>
+                                    <h5>Wind : ${futureForecasts[i].wind.speed} mph</h5>
+                                </p>`);
+    
+    futureForecastCard.append(futureForecastCardHeader)
+    futureForecastCard.append(futureForecastCardBody)
+    futureForecastContainer.append(futureForecastCard)
+
+
+
+
+        futureForecastDisplay.append(futureForecastContainer);
+        }
+   
+
+
+
+    })//end of api calling
    
 })
 
@@ -87,3 +120,20 @@ searchBtn.on('click',function(){
     getWeatherData(cityName);
     
 })
+
+/**
+ *  <div class="row m-4 p-4">
+                <div class="col-sm-12 col-md-3 col-lg-3">
+                  <div class="card bg-secondary text-white">
+                    <div class="card-header text-center">
+                        <h5 class="card-title">Monday</h5>
+                    </div>
+                    <div class="card-body">
+                      
+                      <p class="card-text"><h5></h5></p>
+                      
+                    </div>
+                  </div>
+                </div>
+    </div>
+ */

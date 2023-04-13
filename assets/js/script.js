@@ -80,12 +80,12 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
 
 
         for(var i=0; i<futureForecasts.length;i++){
-            var dateDay = dayjs(futureForecasts[i].dt_txt).format('ddd')
+            var dateDay = dayjs(futureForecasts[i].dt_txt)
 
              var futureForecastContainer = $('<div>',{class:"col-sm-12 col-md-4 col-lg-3"});
     var futureForecastCard = $('<div>',{class: 'card bg-secondary text-white m-4'});
     var futureForecastCardHeader = $('<div>',{class:'card-header text-center'}); 
-        futureForecastCardHeader.html(`<h5 class="card-title">${dateDay}</h5>`);
+        futureForecastCardHeader.html(`<h5 class="card-title">${dateDay.format('ddd')}</h5><h6>${dayjs(dateDay).format('DD/MM/YYYY')}</h6>`);
     var futureForecastCardBody = $('<div>',{class:'card-body text-center'}); 
     futureForecastCardBody.html(`<p class="card-text"> 
                                     <h5>Temp : ${futureForecasts[i].main.temp}\u00B0F</h5>

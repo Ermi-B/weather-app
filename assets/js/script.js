@@ -2,6 +2,7 @@ var APIkey = '05818f2d35db6557de278dbcb6229116';
 
 //selectors
 var searchBtn = $('#search-button');
+var clearBtn = $('#clear-history');
 var inputEl = $('#input-city');
 var cityDisplay = $('#city-display');
 var dateDisplay = $('#date-display');
@@ -9,12 +10,13 @@ var tempDisplay = $('#temp-display');
 var windDisplay = $('#wind-display');
 var humidityDisplay = $('#humidity-display');
 var futureForecastDisplay = $('#future-forecast');
-
+var recentSearches = $('#recent-search')
 
 var fiveDaysArray = []; //stores the next five days from current date(just the dates at time 00:00:00)
 var futureForecasts = []; //stores the actual weather information of the next five days
-
+var index = 0; //localstorage index pointer
 //a function that generates a weather data of a city
+
 
 function getWeatherData(city){
 
@@ -63,14 +65,10 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
         
         for(var i=0;i<weatherHourly.length;i++){    //looping through the array           
         
-                for(var j=0; j<fiveDaysArray.length; j++){ //nested loop that to select those entries that match with next five days
-                    
-                    // console.log(weatherHourly[i].dt_txt == fiveDaysArray[j])
-                    if(weatherHourly[i].dt_txt==fiveDaysArray[j]){
-                        
+                for(var j=0; j<fiveDaysArray.length; j++){ //nested loop that to select those entries that match with next five days                    
+                   
+                    if(weatherHourly[i].dt_txt==fiveDaysArray[j]){  
                         futureForecasts.push(weatherHourly[i]); //future forecast now holds the next five days weather forecast at time 00:00:00
-                        console.log('added')
-                     
                     } 
                 }//end of inner for loop                          
           
@@ -105,14 +103,60 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
 
 
 //event listener
-searchBtn.on('click',function(){
 
+//search button event listener
+searchBtn.on('click',function(){
+    //these three lines are responsible to clean up the display when user attempts second search
     futureForecastDisplay.empty(); //clearing contents from the cards display space
     fiveDaysArray = []; //resetting arrays
     futureForecasts = [];
 
-    var cityName = $('#input-city').val(); //grabs the city name from user input    
-    getWeatherData(cityName);
+    var cityName = $('#input-city').val(); //grabs the city name from user input   
     
+    //saving city name to locla storage with index as key which is just number starting from 0
+    index++; //increment index by 1
+    localStorage.setItem(cityName,cityName);
+    var history = localStorage.getItem(cityName); //grabs city name 
+    getWeatherData(cityName);   
+
+        var recentSearchBtn = $('<button>',{
+            class: 'col-sm-6 col-md-4 col-lg-2 btn m-2 bg-dark text-white',
+            type:'button'
+        })  
+        var cityLocal = localStorage.key(i);//grabs city name from Local storage
+        recentSearchBtn.text(history);
+        recentSearches.append(recentSearchBtn)
+        recentSearchBtn.on('click',function () {
+                getWeatherData($(this).text());  //calls the function passing that specific button's text as argument
+            })
+        
+
 })
 
+
+    for(var i =0 ;i<localStorage.length;i++){ //iterating through local storage
+    var recentSearchBtn = $('<button>',{ //generating buttons to represent recent search history
+        class: 'col-sm-6 col-md-4 col-lg-2 btn m-2 bg-dark text-white',
+        type:'button'
+    })
+        
+    var cityLocal = localStorage.key(i);//grabs city name from Local storage
+
+    recentSearchBtn.text(cityLocal);
+    recentSearches.append(recentSearchBtn)
+    //event listener for recent search buttons 
+    recentSearchBtn.on('click',function () {
+        futureForecastDisplay.empty(); //clearing contents from the cards display space
+        fiveDaysArray = []; //resetting arrays
+        futureForecasts = [];
+            getWeatherData($(this).text()); //calls the function passing that specific button's text as argument
+        })
+    }
+    clearBtn.on('click',function(){
+        if(confirm('Are you sure you want to clear your search history?')){ //propmpting if user really wanted to clear search history 
+            localStorage.clear()    //clears local storage content entirely
+            location.reload()   //refreshes the page
+        }
+        
+    })
+    

@@ -18,7 +18,8 @@
 
 ## Credits
 - Developed by Ermiyas Bekele
-- Thrid party APIs (Bootstrap,Jquery,dayjs,weatherforecast5) 
+- Thrid party APIs (Bootstrap,Jquery,dayjs,weatherforecast5 API : https://openweathermap.org/forecast5) 
+
 ## Licenses
 - MIT license
 

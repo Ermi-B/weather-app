@@ -86,13 +86,23 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
         //future forecast display in cards using bootstrap classes
         for(var i=0; i<futureForecasts.length;i++){
             var dateDay = dayjs(futureForecasts[i].dt_txt)
+            
             //creating container and cards to display the next 5 days forecast
             var futureForecastContainer = $('<div>',{class:"col-sm-12 col-md-4 col-lg-3"});            
             var futureForecastCard = $('<div>',{class: 'card bg-secondary text-white m-4'});
             var futureForecastCardHeader = $('<div>',{class:'card-header text-center'}); 
             futureForecastCardHeader.html(`<h5 class="card-title">${dateDay.format('ddd')}</h5><h6>${dayjs(dateDay).format('DD/MM/YYYY')}</h6>`);
-            var futureForecastCardBody = $('<div>',{class:'card-body text-center'}); 
-            futureForecastCardBody.html(`<p class="card-text"> 
+
+            var futureIcon = futureForecasts[i].weather[0].icon;    //adding weather icons for the next 5 days forecast
+            var futureForecastIcon = $('<img>',{
+                src : 'https://openweathermap.org/img/wn/'+futureIcon+'@2x.png',
+                alt : 'weather icon'
+            })
+            futureForecastCardHeader.append(futureForecastIcon);
+            var futureForecastCardBody = $('<div>',{class:'card-body text-center'});
+            
+            //adds weather information for the next 5 days
+            futureForecastCardBody.html(`<p class="card-text">     
                                             <h5>Temp : ${futureForecasts[i].main.temp}\u00B0F</h5>
                                             <h5>Humidity : ${futureForecasts[i].main.humidity} %</h5>
                                             <h5>Wind : ${futureForecasts[i].wind.speed} mph</h5>
@@ -119,7 +129,7 @@ searchBtn.on('click',function(){
         alert('Please enter a city name')
         
     }else{    
-        
+
     //these three lines are responsible to clean up the display when user attempts second search
     futureForecastDisplay.empty(); //clearing contents from the cards display space
     fiveDaysArray = []; //resetting arrays

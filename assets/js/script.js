@@ -10,14 +10,13 @@ var tempDisplay = $('#temp-display');
 var windDisplay = $('#wind-display');
 var humidityDisplay = $('#humidity-display');
 var futureForecastDisplay = $('#future-forecast');
-var recentSearches = $('#recent-search')
+var recentSearches = $('#recent-search');
+var weatherIcon = $('#weather-icon');
 
 var fiveDaysArray = []; //stores the next five days from current date(just the dates at time 00:00:00)
 var futureForecasts = []; //stores the actual weather information of the next five days
-var index = 0; //localstorage index pointer
+
 //a function that generates a weather data of a city
-
-
 function getWeatherData(city){
 
     //API call to retrieve longitude and latitude of a city
@@ -29,7 +28,7 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
 }).then(function(result){
 
     var latitude = result[0].lat;   //grabs the first results lattitude
-    var longitude = result[0].lon;  //grabs the second of results longitude
+    var longitude = result[0].lon;  //grabs the first results longitude
     
  //API calling  which uses the longitude and lattitude to fetch data
  
@@ -42,6 +41,14 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
         cityDisplay.text(data.city.name); //writes the city name on the page
         dateDisplay.text(dayjs().format('MM/DD/YYYY')) //date
 
+        var icon = data.list[0].weather[0].icon;    //three char code for current weather
+        var weatherImg = $("<img>",{    //generating the img for that icon
+            src : 'https://openweathermap.org/img/wn/'+icon+'@2x.png',
+            alt : 'weather icon'
+        })
+        weatherIcon.empty() //clears if any icon is appearing before displaying another
+        weatherIcon.append(weatherImg)  
+
         var tempFar = data.list[0].main.temp //gets temprature in Franehit
         tempDisplay.text("Temp: " + tempFar.toFixed(2) + ' \u00B0F') //temprature in two decimal place with a degree symbol represented by \u00B0 Unicode 
 
@@ -50,6 +57,8 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
 
         humidityDisplay.text("Humidity:  " + data.list[0].main.humidity + "%") //humidity
         
+
+             
         var weatherHourly = data.list; //array of objects for every 3 hours of 5 days weather forecast(length of array = 40)
         
 
@@ -102,38 +111,44 @@ fetch(coordinatesUrl) //fetches data using city name to get the longitude and la
 } //end of function
 
 
-//event listener
-
+//event listeners
 //search button event listener
+
 searchBtn.on('click',function(){
+    if(inputEl.val() == ''){
+        alert('Please enter a city name')
+        
+    }else{    
+        
     //these three lines are responsible to clean up the display when user attempts second search
     futureForecastDisplay.empty(); //clearing contents from the cards display space
     fiveDaysArray = []; //resetting arrays
-    futureForecasts = [];
+    futureForecasts = [];    
 
     var cityName = $('#input-city').val(); //grabs the city name from user input   
-    
+    inputEl.val(''); //clear input elemnt content
     //saving city name to locla storage with index as key which is just number starting from 0
-    index++; //increment index by 1
+    
     localStorage.setItem(cityName,cityName);
     var history = localStorage.getItem(cityName); //grabs city name 
     getWeatherData(cityName);   
 
-        var recentSearchBtn = $('<button>',{
+    var recentSearchBtn = $('<button>',{
             class: 'col-sm-6 col-md-4 col-lg-2 btn m-2 bg-dark text-white',
             type:'button'
-        })  
-        var cityLocal = localStorage.key(i);//grabs city name from Local storage
-        recentSearchBtn.text(history);
-        recentSearches.append(recentSearchBtn)
-        recentSearchBtn.on('click',function () {
-                getWeatherData($(this).text());  //calls the function passing that specific button's text as argument
-            })
+    })  
+    var cityLocal = localStorage.key(i);//grabs city name from Local storage
+    recentSearchBtn.text(history);
+    recentSearches.append(recentSearchBtn)
+    recentSearchBtn.on('click',function () {
+            getWeatherData($(this).text());  //calls the function passing that specific button's text as argument
+    
+    })
         
+    }
+})//end of search button even listener
 
-})
-
-
+//creating recent search (history) buttons
     for(var i =0 ;i<localStorage.length;i++){ //iterating through local storage
     var recentSearchBtn = $('<button>',{ //generating buttons to represent recent search history
         class: 'col-sm-6 col-md-4 col-lg-2 btn m-2 bg-dark text-white',
@@ -144,6 +159,7 @@ searchBtn.on('click',function(){
 
     recentSearchBtn.text(cityLocal);
     recentSearches.append(recentSearchBtn)
+
     //event listener for recent search buttons 
     recentSearchBtn.on('click',function () {
         futureForecastDisplay.empty(); //clearing contents from the cards display space
